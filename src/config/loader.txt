@@ -1,0 +1,224 @@
+from __future__ import annotations
+
+from pathlib import Path
+from typing import Any
+
+import yaml
+from pydantic import ValidationError
+
+from .schemas.dataset import AppConfig
+
+
+class ConfigLoader:
+    """
+    Loads and validates YAML configuration files.
+
+    Responsibilities:
+        - Read YAML
+        - Validate using Pydantic
+        - Return an AppConfig object
+    """
+
+    def __init__(self, config_path: str | Path):
+        self.config_path = Path(config_path)
+
+    def _read_yaml(self) -> dict[str, Any]:
+        """
+        Read the YAML configuration file.
+
+        Returns:
+            Parsed YAML as a dictionary.
+        """
+
+        if not self.config_path.exists():
+            raise FileNotFoundError(
+                f"Configuration file not found: {self.config_path}"
+            )
+
+        with self.config_path.open("r", encoding="utf-8") as file:
+            data = yaml.safe_load(file)
+
+        if data is None:
+            raise ValueError(
+                f"Configuration file '{self.config_path}' is empty."
+            )
+
+        if not isinstance(data, dict):
+            raise TypeError(
+                "Configuration root must be a YAML mapping."
+            )
+
+        return data
+
+    def _validate(self, data: dict[str, Any]) -> AppConfig:
+        """
+        Validate the configuration using the Pydantic schema.
+        """
+
+        try:
+            return AppConfig.model_validate(data)
+
+        except ValidationError as e:
+            raise ValueError(
+                f"Configuration validation failed:\n{e}"
+            ) from e
+
+    def load(self) -> AppConfig:
+        """
+        Load and validate the configuration.
+
+        Returns:
+            AppConfig
+        """
+
+        data = self._read_yaml()
+
+        return self._validate(data)
+
+
+
+
+
+
+
+
+
+
+from __future__ import annotations
+
+import logging
+from pathlib import Path
+from typing import Any, Type, TypeVar
+
+import yaml
+from pydantic import BaseModel, ValidationError
+
+logger = logging.getLogger(__name__)
+
+T = TypeVar("T", bound=BaseModel)
+
+
+# ==============================================================================
+# Exceptions
+# ==============================================================================
+
+class ConfigError(Exception):
+    """Base exception for all configuration-related errors."""
+
+
+class ConfigFileNotFoundError(ConfigError):
+    """Raised when the configuration file cannot be found."""
+
+
+class EmptyConfigurationError(ConfigError):
+    """Raised when the configuration file is empty."""
+
+
+class InvalidConfigurationError(ConfigError):
+    """Raised when configuration validation fails."""
+
+
+# ==============================================================================
+# Configuration Loader
+# ==============================================================================
+
+class ConfigLoader:
+    """
+    Generic YAML configuration loader.
+
+    Responsibilities
+    ----------------
+    1. Read YAML configuration files.
+    2. Validate them using a supplied Pydantic schema.
+    3. Return a strongly typed configuration object.
+
+    This class is intentionally schema-agnostic so it can be reused for
+    dataset, model, optimizer, tokenizer, and training configurations.
+    """
+
+    def __init__(self, config_path: str | Path):
+        self._config_path = Path(config_path).expanduser().resolve()
+
+    @property
+    def path(self) -> Path:
+        """Return the resolved configuration path."""
+        return self._config_path
+
+    def exists(self) -> bool:
+        """Return True if the configuration file exists."""
+        return self._config_path.exists()
+
+    def _read_yaml(self) -> dict[str, Any]:
+        """
+        Read and parse the YAML configuration file.
+
+        Returns
+        -------
+        dict[str, Any]
+            Parsed YAML contents.
+        """
+
+        if not self.exists():
+            raise ConfigFileNotFoundError(
+                f"Configuration file not found: {self._config_path}"
+            )
+
+        logger.debug("Reading configuration from '%s'", self._config_path)
+
+        try:
+            with self._config_path.open("r", encoding="utf-8") as file:
+                data = yaml.safe_load(file)
+
+        except yaml.YAMLError as exc:
+            raise InvalidConfigurationError(
+                f"Invalid YAML syntax in '{self._config_path}'."
+            ) from exc
+
+        if data is None:
+            raise EmptyConfigurationError(
+                f"Configuration file '{self._config_path}' is empty."
+            )
+
+        if not isinstance(data, dict):
+            raise InvalidConfigurationError(
+                "The root of the YAML file must be a mapping (dictionary)."
+            )
+
+        return data
+
+    def load(self, schema: Type[T]) -> T:
+        """
+        Load and validate a configuration.
+
+        Parameters
+        ----------
+        schema : Type[T]
+            Pydantic schema used to validate the configuration.
+
+        Returns
+        -------
+        T
+            Validated configuration object.
+        """
+
+        raw_config = self._read_yaml()
+
+        try:
+            config = schema.model_validate(raw_config)
+
+            logger.info(
+                "Successfully loaded configuration '%s'.",
+                self._config_path.name,
+            )
+
+            return config
+
+        except ValidationError as exc:
+            logger.exception(
+                "Configuration validation failed for '%s'.",
+                self._config_path.name,
+            )
+
+            raise InvalidConfigurationError(
+                f"Configuration validation failed:\n{exc}"
+            ) from exc
