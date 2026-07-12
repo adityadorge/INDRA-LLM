@@ -35,3 +35,27 @@ Inference and text generation
 Temperature, top-k, top-p sampling
 KV cache
 Fine-tuning and instruction tuning
+
+
+
+
+Topics to master
+
+A solid learning path is:
+
+Character tokenization
+Vocabulary construction
+Encoding and decoding
+Embedding layers
+Positional encodings (or learned positional embeddings)
+Self-attention
+Multi-head attention
+Feed-forward networks (MLPs)
+Layer normalization
+Residual connections
+Causal masking
+Cross-entropy loss
+Autoregressive language modeling
+Byte Pair Encoding (BPE)
+SentencePiece and unigram tokenization
+GPT training and inference
