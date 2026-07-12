@@ -1,3 +1,5 @@
+import torch
+
 """
 Data Collection & Preparation
 --------------------------------------
@@ -18,31 +20,34 @@ Understand the shapes of x and y (this is critical before building the model)
 9. Create a Batching Function (Data Loader)  / Create batches for training
 10. Feed the batches into the model for training
 """
-import torch
+
 # 1. Download the TinyShakespeare dataset and read the text file.
-with open('data/raw/tiny_shakespeare_raw.txt', 'r', encoding='utf-8') as f:
+with open("data/raw/tiny_shakespeare_raw.txt", "r", encoding="utf-8") as f:
     text = f.read()
-  
-# 2. Create a character-level tokenizer 
-# 3. Convert the characters to integer indices (stoi) and create a reverse mapping (itos).
+
+# 2. Create a character-level tokenizer
+# 3. Create the stoi and itos mappings.
 itos = dict(enumerate(sorted(set(text))))
 stoi = {ch: i for i, ch in enumerate(sorted(set(text)))}
-print(f'stoi: {stoi}')
-print(f'itos: {itos}')
+print(f"stoi: {stoi}")
+print(f"itos: {itos}")
+
 
 # 4. Define the encode and decode functions
 def encode(s: str) -> list[int]:
     """Encodes a string into a list of integers using the stoi mapping."""
-    return [stoi[c] for c in s]   
+    return [stoi[c] for c in s]
 
-def decode(l: list[int]) -> str:
+
+def decode(indicies: list[int]) -> str:
     """Decodes a list of integers back into a string using the itos mapping."""
-    return ''.join([itos[i] for i in l])
+    return "".join([itos[i] for i in indicies])
+
 
 # 5. Test the encode and decode functions
 test_text = "world"
 print(f'encode("{test_text}"): {encode(test_text)}')
-print(f'decode: {decode(encode(test_text))}') 
+print(f"decode: {decode(encode(test_text))}")
 
 # 6. Encode the entire dataset
 encoded_text = encode(text)
