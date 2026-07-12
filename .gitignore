@@ -1,0 +1,21 @@
+# Python virtual environment
+.indra-env/
+
+# Ruff cache
+.ruff_cache/
+
+# (Optional) Ignore all data files if they are large/generated
+# data/
+
+# Python cache
+__pycache__/
+*.py[cod]
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+
+# macOS
+.DS_Store
+
+# VS Code settings (optional)
+.vscode/

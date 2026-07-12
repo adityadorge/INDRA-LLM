@@ -1,0 +1,37 @@
+Learning Roadmap for Building a GPT From Scratch
+
+I recommend following this sequence because each concept builds on the previous one:
+
+Phase 1: Text Processing
+Character-level tokenizer
+Word tokenizer
+Byte tokenizer
+Byte Pair Encoding (BPE)
+Byte-Level BPE (GPT-2 style)
+Vocabulary construction
+Special tokens
+Unicode and normalization
+Phase 2: Neural Network Foundations
+One-hot encoding
+Embeddings
+Positional encoding
+Linear layers
+Activation functions (ReLU, GELU)
+Softmax
+Cross-entropy loss
+Gradient descent and backpropagation
+Phase 3: Transformer Architecture
+Self-attention
+Multi-head attention
+Layer normalization
+Residual connections
+Feed-forward networks
+Transformer block
+Causal masking
+Phase 4: GPT Model
+Language modeling objective
+Training loop
+Inference and text generation
+Temperature, top-k, top-p sampling
+KV cache
+Fine-tuning and instruction tuning
