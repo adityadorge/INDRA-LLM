@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import logging
 from pathlib import Path
+
 import requests
 
 logger = logging.getLogger(__name__)
@@ -10,11 +11,14 @@ logger = logging.getLogger(__name__)
 class DownloadError(Exception):
     """Base exception for download-related errors."""
 
+
 class DownloadFailedError(DownloadError):
     """Raised when a download fails."""
 
+
 class InvalidURLError(DownloadError):
     """Raised when an invalid URL is provided."""
+
 
 class Downloader:
     """Generic file downloader.
@@ -30,7 +34,12 @@ class Downloader:
     def __init__(self, timeout: int = DEFAULT_TIMEOUT):
         self._timeout = timeout
 
-    def download(self,url: str,destination: str | Path,overwrite: bool = False,) -> Path:
+    def download(
+        self,
+        url: str,
+        destination: str | Path,
+        overwrite: bool = False,
+    ) -> Path:
         """Download a file."""
         destination = Path(destination)
         destination.parent.mkdir(parents=True, exist_ok=True)
@@ -55,9 +64,7 @@ class Downloader:
                     if chunk:
                         fp.write(chunk)
         except OSError as exc:
-            raise DownloadFailedError(
-                f"Failed writing '{destination}'."
-            ) from exc
+            raise DownloadFailedError(f"Failed writing '{destination}'.") from exc
 
         logger.info("Download completed: %s", destination)
         return destination

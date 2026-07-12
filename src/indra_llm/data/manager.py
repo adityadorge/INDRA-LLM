@@ -38,9 +38,7 @@ class DatasetManager:
         """
 
         if name not in self._config.datasets:
-            raise DatasetNotFoundError(
-                f"Dataset '{name}' is not defined."
-            )
+            raise DatasetNotFoundError(f"Dataset '{name}' is not defined.")
 
         return self._config.datasets[name]
 

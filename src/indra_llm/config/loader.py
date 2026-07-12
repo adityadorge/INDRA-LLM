@@ -1,9 +1,13 @@
 from __future__ import annotations
+
 from pathlib import Path
-import yaml
 from typing import Any
+
+import yaml
 from pydantic import ValidationError
+
 from .schemas.dataset import AppConfig
+
 
 class ConfigLoader:
     """
@@ -19,11 +23,11 @@ class ConfigLoader:
     configuration (dataset, model, optimizer, training, etc.).
     """
 
-    def __init__(self,config_path: str | Path):
+    def __init__(self, config_path: str | Path):
         self.config_path = Path(config_path)
 
     def _read_yaml(self) -> dict[str, Any]:
-        """ Read the YAML configuration file. Returns: Parsed YAML as a dictionary."""
+        """Read the YAML configuration file. Returns: Parsed YAML as a dictionary."""
 
         if not self.config_path.exists():
             raise FileNotFoundError(f"Configuration file not found: {self.config_path}")
@@ -40,7 +44,7 @@ class ConfigLoader:
         return data
 
     def _validate(self, data: dict[str, Any]) -> AppConfig:
-        """ Validate the configuration using the Pydantic schema. """
+        """Validate the configuration using the Pydantic schema."""
 
         try:
             return AppConfig.model_validate(data)
@@ -49,7 +53,7 @@ class ConfigLoader:
             raise ValueError(f"Configuration validation failed:\n{e}") from e
 
     def load(self) -> AppConfig:
-        """ Load and validate the configuration. Returns: AppConfig """
+        """Load and validate the configuration. Returns: AppConfig"""
 
         data = self._read_yaml()
         return self._validate(data)
