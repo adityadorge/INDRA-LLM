@@ -1,72 +1,49 @@
-import torch
-
-"""
-Data Collection & Preparation
---------------------------------------
-Download and prepare the TinyShakespeare dataset. This raw text will be used
-to build our character-level tokenizer and create the training/validation
-tensors for the decoder-only GPT model.
-"""
-"""
-3. Create a character-level tokenizer by identifying the unique characters in the text.
-4. Convert the characters to integer indices (stoi) and create a reverse mapping (itos).
-5. Convert to tensors list of integers and wrap it into a 1D Tensor.
-6. Split into Training and Validation Sets
-7. Define the Context Length (Block Size)
-Learn how to extract one (x, y) pair
-Create a get_batch() function that returns a batch of (x, y) pairs
-Understand the shapes of x and y (this is critical before building the model)
-8. Structure the Inputs ($X$) and Targets ($Y$)
-9. Create a Batching Function (Data Loader)  / Create batches for training
-10. Feed the batches into the model for training
-"""
-
-# 1. Download the TinyShakespeare dataset and read the text file.
-with open("data/raw/tiny_shakespeare_raw.txt", "r", encoding="utf-8") as f:
-    text = f.read()
-
-# 2. Create a character-level tokenizer
-# 3. Create the stoi and itos mappings.
-itos = dict(enumerate(sorted(set(text))))
-stoi = {ch: i for i, ch in enumerate(sorted(set(text)))}
-print(f"stoi: {stoi}")
-print(f"itos: {itos}")
+import json
+from pathlib import Path
+from typing import List, Dict, Union
 
 
-# 4. Define the encode and decode functions
-def encode(s: str) -> list[int]:
-    """Encodes a string into a list of integers using the stoi mapping."""
-    return [stoi[c] for c in s]
+class CharacterTokenizer:
+    """A standalone character-level tokenizer managing text tokenization and vocabulary persistence."""
 
+    def __init__(self, text: str = ""):
+        self.vocab: List[str] = []
+        self.char_to_idx: Dict[str, int] = {}
+        self.idx_to_char: Dict[int, str] = {}
 
-def decode(indicies: list[int]) -> str:
-    """Decodes a list of integers back into a string using the itos mapping."""
-    return "".join([itos[i] for i in indicies])
+        if text:
+            self.build_vocab(text)
 
+    def build_vocab(self, text: str) -> None:
+        """Constructs mappings from unique characters in the text corpus."""
+        self.vocab = sorted(list(set(text)))
+        self.char_to_idx = {ch: idx for idx, ch in enumerate(self.vocab)}
+        self.idx_to_char = {idx: ch for idx, ch in enumerate(self.vocab)}
 
-# 5. Test the encode and decode functions
-test_text = "world"
-print(f'encode("{test_text}"): {encode(test_text)}')
-print(f"decode: {decode(encode(test_text))}")
+    @property
+    def vocab_size(self) -> int:
+        return len(self.vocab)
 
-# 6. Encode the entire dataset
-encoded_text = encode(text)
-print(f"\nNumber of tokens: {len(encoded_text):,}")
+    def encode(self, string: str) -> List[int]:
+        """Maps raw text strings into arrays of integer token IDs."""
+        return [self.char_to_idx[char] for char in string if char in self.char_to_idx]
 
-# 7. Convert to a PyTorch tensor
-data = torch.tensor(encoded_text, dtype=torch.long)
+    def decode(self, ids: List[int]) -> str:
+        """Maps arrays of integer token IDs back into readable text strings."""
+        return "".join(
+            [self.idx_to_char[idx] for idx in ids if idx in self.idx_to_char]
+        )
 
-print(f"Tensor shape : {data.shape}")
-print(f"Tensor dtype : {data.dtype}")
+    def save_vocab(self, output_path: Union[str, Path]) -> None:
+        """Serializes vocabulary metadata states to disk for consistency."""
+        state = {"vocab": self.vocab}
+        with open(Path(output_path), "w", encoding="utf-8") as f:
+            json.dump(state, f, ensure_ascii=False, indent=2)
 
-# Show the first few tokens
-print(data[:20])
-
-# 8. Split into training and validation sets
-n = int(0.9 * len(data))
-
-train_data = data[:n]
-val_data = data[n:]
-
-print(f"\nTraining tokens  : {len(train_data):,}")
-print(f"Validation tokens: {len(val_data):,}")
+    def load_vocab(self, input_path: Union[str, Path]) -> None:
+        """Restores a serialized vocabulary state to rebuild tokenization layouts."""
+        with open(Path(input_path), "r", encoding="utf-8") as f:
+            state = json.load(f)
+        self.vocab = state["vocab"]
+        self.char_to_idx = {ch: idx for idx, ch in enumerate(self.vocab)}
+        self.idx_to_char = {idx: ch for idx, ch in enumerate(self.vocab)}

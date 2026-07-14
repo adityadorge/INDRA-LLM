@@ -20,7 +20,7 @@ class InvalidURLError(DownloadError):
     """Raised when an invalid URL is provided."""
 
 
-class Downloader:
+class DatasetDownloader:
     """Generic file downloader.
 
     Responsibilities:

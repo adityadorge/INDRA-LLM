@@ -10,8 +10,7 @@ from .schemas.dataset import AppConfig
 
 
 class ConfigLoader:
-    """
-    Generic YAML configuration loader.
+    """Generic YAML configuration loader.
 
     Responsibilities
     ----------------
@@ -28,7 +27,6 @@ class ConfigLoader:
 
     def _read_yaml(self) -> dict[str, Any]:
         """Read the YAML configuration file. Returns: Parsed YAML as a dictionary."""
-
         if not self.config_path.exists():
             raise FileNotFoundError(f"Configuration file not found: {self.config_path}")
 
@@ -45,15 +43,31 @@ class ConfigLoader:
 
     def _validate(self, data: dict[str, Any]) -> AppConfig:
         """Validate the configuration using the Pydantic schema."""
-
         try:
             return AppConfig.model_validate(data)
-
         except ValidationError as e:
             raise ValueError(f"Configuration validation failed:\n{e}") from e
 
     def load(self) -> AppConfig:
         """Load and validate the configuration. Returns: AppConfig"""
-
         data = self._read_yaml()
         return self._validate(data)
+
+    @classmethod
+    def load_from_yaml(cls, config_path: str | Path) -> AppConfig:
+        """Instantiates the loader and validates configuration in a single step.
+
+        Parameters
+        ----------
+        config_path : str | Path
+            The route layout pointing directly to your YAML file targets.
+
+        Returns
+        -------
+        AppConfig
+            A strongly typed, verified configurations object tree.
+        """
+        # 1. Instantiate the class dynamically using the provided path
+        loader_instance = cls(config_path)
+        # 2. Trigger the functional execution and validation flow
+        return loader_instance.load()
