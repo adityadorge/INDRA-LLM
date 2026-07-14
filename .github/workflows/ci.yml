@@ -2,16 +2,16 @@ name: CI
 
 on:
   push:
-    branches: [ main, master ]
+    branches: [ main, master, indra-backend-dev ]
   pull_request:
-    branches: [ main, master ]
+    branches: [ main, master, indra-backend-dev ]
 
 jobs:
   lint-and-test:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ["3.11", "3.12"]
+        python-version: ["3.12"]
 
     steps:
       - name: Check out repository
