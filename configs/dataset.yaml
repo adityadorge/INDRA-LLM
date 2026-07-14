@@ -6,10 +6,10 @@ config_version: "1.0.0"
 environment:
   mode: "development"  # Options: development, staging, production
   storage:
-    root_dir: "../data"
-    raw_dir: "../data/raw"
-    processed_dir: "../data/processed"
-    cache_dir: "../data/.cache"
+    root_dir: "data"
+    raw_dir: "data/raw"
+    processed_dir: "data/processed"
+    cache_dir: "data/.cache"
 
 datasets:
   tiny_shakespeare:

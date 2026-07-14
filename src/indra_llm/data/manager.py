@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from src.config.schemas.dataset import AppConfig, DatasetConfig
+from config.schemas.dataset import AppConfig, DatasetConfig
 
 
 class DatasetNotFoundError(Exception):
