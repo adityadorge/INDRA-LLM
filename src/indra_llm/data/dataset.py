@@ -1,10 +1,13 @@
-import torch
 from pathlib import Path
 from typing import Tuple
 
+import torch
+
 
 class GPTDataBatcher:
-    """Loads preprocessed token arrays from disk to serve sliding window inputs and targets."""
+    """Loads preprocessed token arrays from disk.
+    Serves sliding window inputs and targets.
+    """
 
     def __init__(self, tensor_path: Path, block_size: int, batch_size: int):
         self.block_size = block_size
@@ -22,11 +25,13 @@ class GPTDataBatcher:
         self.max_start_index = len(self.data_tensor) - self.block_size - 1
         if self.max_start_index <= 0:
             raise ValueError(
-                f"Tensor token array is too small to fulfill block_size context."
+                "Tensor token array is too small to fulfill block_size context."
             )
 
     def get_batch(self) -> Tuple[torch.Tensor, torch.Tensor]:
-        """Samples random offsets to build parallel matrix batches of inputs (X) and shifted targets (Y)."""
+        """Samples random offsets to build parallel matrix batches.
+        Returns inputs (X) and shifted targets (Y).
+        """
         random_offsets = torch.randint(
             high=self.max_start_index, size=(self.batch_size,)
         )

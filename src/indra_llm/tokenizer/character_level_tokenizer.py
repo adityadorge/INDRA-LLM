@@ -1,10 +1,12 @@
 import json
 from pathlib import Path
-from typing import List, Dict, Union
+from typing import Dict, List, Union
 
 
 class CharacterTokenizer:
-    """A standalone character-level tokenizer managing text tokenization and vocabulary persistence."""
+    """A standalone character-level tokenizer.
+    Manages text tokenization and vocabulary persistence.
+    """
 
     def __init__(self, text: str = ""):
         self.vocab: List[str] = []

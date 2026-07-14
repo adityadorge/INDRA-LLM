@@ -1,9 +1,10 @@
 import logging
 from pathlib import Path
+
 from src.indra_llm.config.loader import ConfigLoader
+from src.indra_llm.data.dataset import GPTDataBatcher
 from src.indra_llm.data.downloader import DatasetDownloader
 from src.indra_llm.preprocessing.preprocessing import run_preprocessing
-from src.indra_llm.data.dataset import GPTDataBatcher
 
 logging.basicConfig(
     level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s"

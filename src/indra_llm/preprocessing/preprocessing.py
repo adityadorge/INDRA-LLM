@@ -1,6 +1,7 @@
-import torch
 import logging
-from pathlib import Path
+
+import torch
+
 from src.indra_llm.config.schemas.dataset import AppConfig
 from src.indra_llm.tokenizer.character_level_tokenizer import CharacterTokenizer
 
@@ -58,5 +59,6 @@ def run_preprocessing(
         f"Preprocessing stage absolute finish! Encoded {len(token_ids):,} total items."
     )
     logger.info(
-        f"Train tensor items: {train_tensor.shape[0]:,}, Val tensor items: {val_tensor.shape[0]:,}"
+        f"Train tensor items: {train_tensor.shape[0]:,}, "
+        f"Val tensor items: {val_tensor.shape[0]:,}"
     )
